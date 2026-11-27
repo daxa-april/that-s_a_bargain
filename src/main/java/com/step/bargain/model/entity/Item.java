@@ -11,6 +11,8 @@ import java.math.BigDecimal;
  * @author Daria Pevets
  **/
 @Entity
+@Table(name = "products", uniqueConstraints = @UniqueConstraint(columnNames = {"url", "chat_id"})
+)
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -20,10 +22,13 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 500)
+    @Column(name = "chat_id", nullable = false)
+    private Long chatId;
+
+    @Column(name = "title", nullable = false, length = 500)
     private String title;
 
-    @Column(nullable = false, unique = true, length = 1000)
+    @Column(name = "url", nullable = false, length = 1000)
     private String url;
 
     @Column(name = "current_price", precision = 12, scale = 2)

@@ -3,6 +3,7 @@ package com.step.bargain.repository;
 import com.step.bargain.model.entity.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -10,7 +11,9 @@ import java.util.Optional;
  **/
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    Optional<Item> findByUrl(String url);
+    Optional<Item> findByIdAndChatId(Long id, Long chatId);
 
-    boolean existsByUrl(String url);
+    boolean existsByUrlAndChatId(String url, Long chatId);
+
+    List<Item> findAllByChatId(Long chatId);
 }

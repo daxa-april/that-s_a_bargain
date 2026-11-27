@@ -5,7 +5,7 @@ import com.step.bargain.model.entity.Item;
 import com.step.bargain.model.entity.Platform;
 import com.step.bargain.model.entity.dto.ProductInfo;
 import com.step.bargain.repository.ItemRepository;
-import com.step.bargain.service.ClientService;
+import com.step.bargain.service.ItemService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,22 +19,22 @@ import java.util.stream.Collectors;
  * @author Daria Pevets
  **/
 @Service
-public class ClientServiceImpl implements ClientService {
+public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
 
     private final Map<Platform, MarketplaceParser> parsers;
 
-    public ClientServiceImpl(List<MarketplaceParser> parserList, ItemRepository itemRepository) {
+    public ItemServiceImpl(List<MarketplaceParser> parserList, ItemRepository itemRepository) {
         this.parsers = parserList.stream()
                 .collect(Collectors.toMap(MarketplaceParser::getPlatform, Function.identity()));
         this.itemRepository = itemRepository;
     }
 
-    @Override
     @Transactional
-    public Item addItem(String url) {
-        if (itemRepository.existsByUrl(url)) {
+    @Override
+    public Item addItem(String url, Long chatId) {
+        if (itemRepository.existsByUrlAndChatId(url, chatId)) {
             throw new IllegalStateException("Товар по данной ссылке уже существует" + url);
         }
 
@@ -50,6 +50,7 @@ public class ClientServiceImpl implements ClientService {
         Item item = new Item();
 
         item.setUrl(url);
+        item.setChatId(chatId);
         item.setTitle(productInfo.title());
         item.setPlatform(platform);
         item.setLastPrice(productInfo.price());
@@ -59,11 +60,11 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public void removeItem(Long id) {
+    public void removeItem(Long id, Long chatId) {
 
-        if (!itemRepository.existsById(id)) {
-            throw new EntityNotFoundException("Подобного товара не существует: ");
-        }
-        itemRepository.deleteById(id);
+        Item item = itemRepository.findByIdAndChatId(id, chatId)
+                .orElseThrow(() -> new EntityNotFoundException("Товар не найден или уже удален"));
+        itemRepository.delete(item);
     }
 }
+

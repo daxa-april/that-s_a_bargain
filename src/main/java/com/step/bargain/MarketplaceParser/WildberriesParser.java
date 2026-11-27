@@ -35,7 +35,6 @@ public class WildberriesParser implements MarketplaceParser {
             return matcher.group(1);
         }
         throw new IllegalArgumentException("Некорректная ссылка на WB");
-
     }
 
     @Override
